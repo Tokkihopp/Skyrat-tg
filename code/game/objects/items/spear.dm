@@ -43,9 +43,27 @@
 	var/obj/item/shard/tip = locate() in parts_list
 	if(tip)
 		if (istype(tip, /obj/item/shard/plasma))
+			force = 11
 			throwforce = 21
 			icon_prefix = "spearplasma"
 			AddComponent(/datum/component/two_handed, force_unwielded=11, force_wielded=19, icon_wielded="[icon_prefix]1")
+		else if (istype(tip, /obj/item/shard/titanium))
+			force = 13
+			throwforce = 21
+			throw_range = 8
+			throw_speed = 5
+			wound_bonus = -10
+			icon_prefix = "speartitanium"
+			AddComponent(/datum/component/two_handed, force_unwielded=13, force_wielded=18, icon_wielded="[icon_prefix]1")
+		else if (istype(tip, /obj/item/shard/plastitanium))
+			force = 13
+			throwforce = 22
+			throw_range = 9
+			throw_speed = 5
+			wound_bonus = -10
+			bare_wound_bonus = 20
+			icon_prefix = "spearplastitanium"
+			AddComponent(/datum/component/two_handed, force_unwielded=13, force_wielded=20, icon_wielded="[icon_prefix]1")
 		update_appearance()
 		parts_list -= tip
 		qdel(tip)
@@ -179,14 +197,14 @@
 	icon_prefix = "bone_spear"
 	name = "bone spear"
 	desc = "A haphazardly-constructed yet still deadly weapon. The pinnacle of modern technology."
-	force = 12
+	force = 8 //SKYRAT EDIT
 	throwforce = 22
 	reach = 2 // SKYRAT EDIT
 	armour_penetration = 15 //Enhanced armor piercing
 
 /obj/item/spear/bonespear/ComponentInitialize()
 	. = ..()
-	AddComponent(/datum/component/two_handed, force_unwielded=12, force_wielded=20, icon_wielded="[icon_prefix]1")
+	AddComponent(/datum/component/two_handed, force_unwielded=8, force_wielded=16, icon_wielded="[icon_prefix]1") //SKYRAT EDIT
 
 /*
  * Bamboo Spear

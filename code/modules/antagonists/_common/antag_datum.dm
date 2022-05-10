@@ -220,9 +220,12 @@ GLOBAL_LIST_EMPTY(antagonists)
 	var/mob/living/current = owner.current
 	for (var/datum/atom_hud/alternate_appearance/basic/has_antagonist/antag_hud as anything in GLOB.has_antagonist_huds)
 		if (!antag_hud.mobShouldSee(current))
-			antag_hud.remove_hud_from(current)
+			antag_hud.hide_from(current)
 
 	qdel(src)
+	// SKYRAT EDIT START
+	owner.handle_exploitables() //Inefficient here, but on_removal() is called in multiple locations
+	// SKYRAT EDIT END
 
 /**
  * Proc that sends fluff or instructional messages to the player when they are given this antag datum.
@@ -231,6 +234,7 @@ GLOBAL_LIST_EMPTY(antagonists)
 /datum/antagonist/proc/greet()
 	if(!silent)
 		to_chat(owner.current, span_big("You are \the [src]."))
+		to_chat(owner.current, span_infoplain(span_doyourjobidiot("Remember that being an antagonist does not exclude you from the server rules regarding RP standards."))) //SKYRAT EDIT - RP REMINDER
 
 /**
  * Proc that sends fluff or instructional messages to the player when they lose this antag datum.
@@ -424,7 +428,7 @@ GLOBAL_LIST_EMPTY(antagonists)
 	// Add HUDs that they couldn't see before
 	for (var/datum/atom_hud/alternate_appearance/basic/has_antagonist/antag_hud as anything in GLOB.has_antagonist_huds)
 		if (antag_hud.mobShouldSee(owner.current))
-			antag_hud.add_hud_to(owner.current)
+			antag_hud.show_to(owner.current)
 
 //This one is created by admin tools for custom objectives
 /datum/antagonist/custom

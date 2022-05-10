@@ -12,6 +12,8 @@
 	circuit = /obj/item/circuitboard/machine/gun_vendor
 	max_integrity = 2000
 	density = TRUE
+	/// If FALSE, does not require an alert level to redeem the token.
+	var/requires_alert = TRUE
 
 /obj/item/circuitboard/machine/gun_vendor
 	name = "Weapons Dispenser (Machine Board)"
@@ -31,7 +33,7 @@
 		return
 
 /obj/machinery/gun_vendor/proc/RedeemToken(obj/item/armament_token/token, mob/redeemer)
-	if(seclevel2num(get_security_level()) < token.minimum_sec_level)
+	if((seclevel2num(get_security_level()) < token.minimum_sec_level) && requires_alert)
 		to_chat(redeemer, span_redtext("Warning, this holochip is locked to [num2seclevel(token.minimum_sec_level)]!"))
 		message_admins("ARMAMENT LOG: [redeemer] attempted to redeem a [token.name] on the incorrect security level!")
 		return
@@ -55,6 +57,9 @@
 	SSblackbox.record_feedback("tally", "armament_token_redeemed", 1, dispensed)
 	qdel(token)
 
+/obj/machinery/gun_vendor/no_alert
+	requires_alert = FALSE
+
 ////////////////////
 //TOKENS
 ////////////////////
@@ -73,7 +78,6 @@
 	name = "sidearm armament holochip"
 	desc = "A holochip used in any armament vendor, this is for sidearms. Do not bend."
 	icon_state = "token_sidearm"
-	minimum_sec_level = SEC_LEVEL_BLUE
 
 /obj/item/armament_token/sidearm/get_available_gunsets()
 	return list(
@@ -108,7 +112,8 @@
 	name = "blackmarket armament holochip"
 	desc = "A holochip used in any armament vendor, this is for |bad people|. Do not bend."
 	icon_state = "token_blackmarket"
-	custom_premium_price = PAYCHECK_HARD * 3
+	custom_price = PAYCHECK_COMMAND * 10
+	custom_premium_price = PAYCHECK_COMMAND * 10
 
 /obj/item/armament_token/sidearm_blackmarket/get_available_gunsets()
 	return list(
@@ -178,7 +183,7 @@
 	name = "energy armament holochip"
 	desc = "A holochip used in any armament vendor, this is for energy weapons. Do not bend."
 	icon_state = "token_energy"
-	custom_premium_price = PAYCHECK_HARD * 3
+	custom_premium_price = PAYCHECK_CREW * 3
 	minimum_sec_level = SEC_LEVEL_AMBER
 
 /obj/item/armament_token/energy/get_available_gunsets()

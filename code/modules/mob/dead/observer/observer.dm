@@ -13,7 +13,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	density = FALSE
 	see_invisible = SEE_INVISIBLE_OBSERVER
 	see_in_dark = 100
-	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 	invisibility = INVISIBILITY_OBSERVER
 	hud_type = /datum/hud/ghost
 	movement_type = GROUND | FLYING
@@ -150,6 +150,7 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	data_huds_on = 1
 
 	SSpoints_of_interest.make_point_of_interest(src)
+	ADD_TRAIT(src, TRAIT_HEAR_THROUGH_DARKNESS, ref(src))
 
 /mob/dead/observer/get_photo_description(obj/item/camera/camera)
 	if(!invisibility || camera.see_ghosts)
@@ -372,7 +373,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	if(!mind || QDELETED(mind.current))
 		to_chat(src, span_warning("You have no body."))
 		return
-	if(!can_reenter_corpse)
+	if(!can_reenter_corpse && !mind.has_antag_datum(/datum/antagonist/changeling)) //SKYRAT EDIT
 		to_chat(src, span_warning("You cannot re-enter your body."))
 		return
 	if(mind.current.key && mind.current.key[1] != "@") //makes sure we don't accidentally kick any clients
@@ -506,7 +507,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	. = ..()
 	//restart our floating animation after orbit is done.
 	pixel_y = base_pixel_y
-	animate(src, pixel_y = base_pixel_y + 2, time = 1 SECONDS, loop = -1)
 
 /mob/dead/observer/verb/jumptomob() //Moves the ghost instead of just changing the ghosts's eye -Nodrak
 	set category = "Ghost"
@@ -741,13 +741,13 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 /mob/dead/observer/proc/show_data_huds()
 	for(var/hudtype in datahuds)
-		var/datum/atom_hud/H = GLOB.huds[hudtype]
-		H.add_hud_to(src)
+		var/datum/atom_hud/data_hud = GLOB.huds[hudtype]
+		data_hud.show_to(src)
 
 /mob/dead/observer/proc/remove_data_huds()
 	for(var/hudtype in datahuds)
-		var/datum/atom_hud/H = GLOB.huds[hudtype]
-		H.remove_hud_from(src)
+		var/datum/atom_hud/data_hud = GLOB.huds[hudtype]
+		data_hud.hide_from(src)
 
 /mob/dead/observer/verb/toggle_data_huds()
 	set name = "Toggle Sec/Med/Diag HUD"
@@ -838,6 +838,9 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	return isAdminGhostAI(usr)
 
 /mob/dead/observer/is_literate()
+	return TRUE
+
+/mob/dead/observer/can_read(obj/O)
 	return TRUE
 
 /mob/dead/observer/vv_edit_var(var_name, var_value)
@@ -1049,3 +1052,9 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 			client.images += t_ray_images
 		else
 			client.images -= stored_t_ray_images
+
+/mob/dead/observer/default_lighting_alpha()
+	var/datum/preferences/prefs = client?.prefs
+	if(!prefs || (client?.combo_hud_enabled && prefs.toggles & COMBOHUD_LIGHTING))
+		return ..()
+	return GLOB.ghost_lighting_options[prefs.read_preference(/datum/preference/choiced/ghost_lighting)]

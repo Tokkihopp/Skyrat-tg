@@ -30,9 +30,11 @@
 	RegisterSignal(target, COMSIG_MOVABLE_PREBUCKLE, .proc/check_mounting)
 	if(isvehicle(target))
 		RegisterSignal(target, COMSIG_SPEED_POTION_APPLIED, .proc/check_potion)
+	if(ismob(target))
+		RegisterSignal(target, COMSIG_LIVING_DEATH, .proc/handle_removal)
 
 /datum/element/ridable/Detach(datum/target)
-	UnregisterSignal(target, list(COMSIG_MOVABLE_PREBUCKLE, COMSIG_SPEED_POTION_APPLIED))
+	UnregisterSignal(target, list(COMSIG_MOVABLE_PREBUCKLE, COMSIG_SPEED_POTION_APPLIED, COMSIG_LIVING_DEATH))
 	return ..()
 
 /// Someone is buckling to this movable, which is literally the only thing we care about (other than speed potions)
@@ -129,7 +131,7 @@
 	ridable_atom.remove_atom_colour(WASHABLE_COLOUR_PRIORITY)
 	ridable_atom.add_atom_colour("#FF0000", FIXED_COLOUR_PRIORITY)
 	qdel(speed_potion)
-	return SPEED_POTION_SUCCESSFUL
+	return SPEED_POTION_STOP
 
 /// Remove all of the relevant [riding offhand items][/obj/item/riding_offhand] from the target
 /datum/element/ridable/proc/unequip_buckle_inhands(mob/living/carbon/user, atom/movable/target_movable)
@@ -143,8 +145,13 @@
 			qdel(O)
 	return TRUE
 
+/datum/element/ridable/proc/handle_removal(datum/source)
+	SIGNAL_HANDLER
 
+	var/atom/movable/ridden = source
+	ridden.unbuckle_all_mobs()
 
+	Detach(source)
 
 /obj/item/riding_offhand
 	name = "offhand"

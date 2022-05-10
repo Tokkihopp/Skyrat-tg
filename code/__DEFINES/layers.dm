@@ -23,14 +23,22 @@
 
 
 #define FLOOR_PLANE -7
-#define GAME_PLANE -4
-#define GAME_PLANE_FOV_HIDDEN -3
+
+#define GAME_PLANE -6
+#define GAME_PLANE_FOV_HIDDEN -5
+#define GAME_PLANE_UPPER -4
+#define GAME_PLANE_UPPER_FOV_HIDDEN -3
+
 #define ABOVE_GAME_PLANE -2
 
 #define MOUSE_TRANSPARENT_PLANE -1 //SKYRAT EDIT ADDITION - Pollution port
 
+// PLANE_SPACE layer(s)
 #define SPACE_LAYER 1.8
-//#define TURF_LAYER 2 //For easy recordkeeping; this is a byond define
+
+//#define TURF_LAYER 2 //For easy recordkeeping; this is a byond define. Most floors (FLOOR_PLANE) and walls (GAME_PLANE) use this.
+
+// GAME_PLANE layers
 #define CULT_OVERLAY_LAYER 2.01
 #define MID_TURF_LAYER 2.02
 #define HIGH_TURF_LAYER 2.03
@@ -80,28 +88,40 @@
 #define CORGI_ASS_PIN_LAYER 3.41
 #define NOT_HIGH_OBJ_LAYER 3.5
 #define HIGH_OBJ_LAYER 3.6
-
 #define BELOW_MOB_LAYER 3.7
+
+// GAME_PLANE_FOV_HIDDEN layers
+#define LOW_MOB_LAYER 3.75
 #define LYING_MOB_LAYER 3.8
+#define VEHICLE_LAYER 3.9
 #define MOB_BELOW_PIGGYBACK_LAYER 3.94
 //#define MOB_LAYER 4 //For easy recordkeeping; this is a byond define
 #define MOB_SHIELD_LAYER 4.01
 #define MOB_ABOVE_PIGGYBACK_LAYER 4.06
+#define MOB_UPPER_LAYER 4.07
+#define HITSCAN_PROJECTILE_LAYER 4.09 //above all mob but still hidden by FoV
+
+// GAME_PLANE_UPPER layers
 #define ABOVE_MOB_LAYER 4.1
 #define WALL_OBJ_LAYER 4.25
 #define EDGED_TURF_LAYER 4.3
 #define ON_EDGED_TURF_LAYER 4.35
-#define LARGE_MOB_LAYER 4.4
-#define ABOVE_ALL_MOB_LAYER 4.5
+#define SPACEVINE_LAYER 4.4
 
-#define SPACEVINE_LAYER 4.8
-#define SPACEVINE_MOB_LAYER 4.9
+// GAME_PLANE_UPPER_FOV_HIDDEN layers
+#define LARGE_MOB_LAYER 4.5
+#define SPACEVINE_MOB_LAYER 4.6
+
+// Intermediate layer used by both GAME_PLANE_FOV_HIDDEN and ABOVE_GAME_PLANE
+#define ABOVE_ALL_MOB_LAYER 4.7
+
+// ABOVE_GAME_PLANE layers
 //#define FLY_LAYER 5 //For easy recordkeeping; this is a byond define
 #define GASFIRE_LAYER 5.05
 #define RIPPLE_LAYER 5.1
 
-#define BLACKNESS_PLANE 0 //To keep from conflicts with SEE_BLACKNESS internals
 
+#define BLACKNESS_PLANE 0 //To keep from conflicts with SEE_BLACKNESS internals
 
 #define AREA_PLANE 60
 #define MASSIVE_OBJ_PLANE 70
@@ -143,6 +163,9 @@
 
 ///---------------- MISC -----------------------
 
+///Pipecrawling images
+#define PIPECRAWL_IMAGES_PLANE 180
+
 ///AI Camera Static
 #define CAMERA_STATIC_PLANE 200
 
@@ -167,11 +190,6 @@
 /// Plane for balloon text (text that fades up)
 #define BALLOON_CHAT_PLANE 502
 
-//-------------------- Rendering ---------------------
-#define RENDER_PLANE_GAME 990
-#define RENDER_PLANE_NON_GAME 995
-#define RENDER_PLANE_MASTER 999
-
 //-------------------- HUD ---------------------
 //HUD layer defines
 #define HUD_PLANE 1000
@@ -183,12 +201,29 @@
 
 #define ADMIN_POPUP_LAYER 1
 
+///Layer for screentips
+#define SCREENTIP_LAYER 4
+
+///Plane of the "splash" icon used that shows on the lobby screen. only render plate planes should be above this
+#define SPLASHSCREEN_PLANE 9900
+
+//-------------------- Rendering ---------------------
+#define RENDER_PLANE_GAME 9990
+#define RENDER_PLANE_NON_GAME 9995
+#define RENDER_PLANE_MASTER 9999
+//----------------------------------------------------
+
+
 //SKYRAT EDIT: Lobby Cam
 ///Plane of the "splash" icon used that shows on the lobby screen. Nothing should ever be above this. (Except the logo)
 #define BLACK_FADE 9997
-#define SPLASHSCREEN_PLANE 9998 //Previous value: 9999
 #define SKYRAT_LOGO 9999
 //SKYRAT EDIT: Lobby Cam
+
+//SKYRAT EDIT: Chat Indicator
+#define CHAT_INDICATOR_LAYER 6 // 1 above BYOND's FLY_LAYER
+//SKYRAT EDIT: Chat Indicator
+
 
 #define LOBBY_BACKGROUND_LAYER 3
 #define LOBBY_BUTTON_LAYER 4
@@ -198,3 +233,4 @@
 
 ///Plane master controller keys
 #define PLANE_MASTERS_GAME "plane_masters_game"
+#define PLANE_MASTERS_COLORBLIND "plane_masters_colorblind"

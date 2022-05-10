@@ -123,8 +123,6 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 
 	///What body parts are covered by the clothing when you wear it
 	var/body_parts_covered = 0
-	/// How likely a disease or chemical is to get through a piece of clothing
-	var/permeability_coefficient = 1
 	/// for electrical admittance/conductance (electrocution checks and shit)
 	var/siemens_coefficient = 1
 	/// How much clothing is slowing you down. Negative values speeds you up
@@ -149,6 +147,8 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	var/list/attack_verb_simple
 	///list() of species types, if a species cannot put items in a certain slot, but species type is in list, it will be able to wear that item
 	var/list/species_exception = null
+	///This is a bitfield that defines what variations exist for bodyparts like Digi legs. See: code\_DEFINES\inventory.dm
+	var/supports_variations_flags = NONE
 
 	///A weakref to the mob who threw the item
 	var/datum/weakref/thrownby = null //I cannot verbally describe how much I hate this var
@@ -236,17 +236,17 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 		if(damtype == BURN)
 			hitsound = 'sound/items/welder.ogg'
 		if(damtype == BRUTE)
-			hitsound = "swing_hit"
+			hitsound = SFX_SWING_HIT
 
 	add_weapon_description()
 
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_NEW_ITEM, src)
 	if(LAZYLEN(embedding))
 		updateEmbedding()
-	if(mapload)
+	if(mapload && !GLOB.steal_item_handler.generated_items)
 		add_stealing_item_objective()
 
-/obj/item/Destroy()
+/obj/item/Destroy(force)
 	// This var exists as a weird proxy "owner" ref
 	// It's used in a few places. Stop using it, and optimially replace all uses please
 	master = null
@@ -311,6 +311,14 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 		worn_icon_digi = SSgreyscale.GetColoredIconByType(greyscale_config_worn_digi, greyscale_colors)
 	if(greyscale_config_worn_vox)
 		worn_icon_vox = SSgreyscale.GetColoredIconByType(greyscale_config_worn_vox, greyscale_colors)
+	if(greyscale_config_worn_teshari)
+		worn_icon_teshari = SSgreyscale.GetColoredIconByType(greyscale_config_worn_teshari, greyscale_colors)
+	if(greyscale_config_worn_taur_snake)
+		worn_icon_taur_snake = SSgreyscale.GetColoredIconByType(greyscale_config_worn_taur_snake, greyscale_colors)
+	if(greyscale_config_worn_taur_paw)
+		worn_icon_taur_paw = SSgreyscale.GetColoredIconByType(greyscale_config_worn_taur_paw, greyscale_colors)
+	if(greyscale_config_worn_taur_hoof)
+		worn_icon_taur_hoof = SSgreyscale.GetColoredIconByType(greyscale_config_worn_taur_hoof, greyscale_colors)
 	// SKYRAT EDIT ADD END
 	if(greyscale_config_inhand_left)
 		lefthand_file = SSgreyscale.GetColoredIconByType(greyscale_config_inhand_left, greyscale_colors)
@@ -350,10 +358,14 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 			. += "[src] is made of cold-resistant materials."
 		if(resistance_flags & FIRE_PROOF)
 			. += "[src] is made of fire-retardant materials."
-
-	if(!user.research_scanner)
 		return
 
+/obj/item/examine_more(mob/user)
+	. = ..()
+	if(HAS_TRAIT(user, TRAIT_RESEARCH_SCANNER))
+		. += research_scan(user)
+
+/obj/item/proc/research_scan(mob/user)
 	/// Research prospects, including boostable nodes and point values. Deliver to a console to know whether the boosts have already been used.
 	var/list/research_msg = list("<font color='purple'>Research prospects:</font> ")
 	///Separator between the items on the list
@@ -387,7 +399,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	else
 		research_msg += "None"
 	research_msg += "."
-	. += research_msg.Join()
+	return research_msg.Join()
 
 /obj/item/interact(mob/user)
 	add_fingerprint(user)
@@ -717,7 +729,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 		SEND_SIGNAL(src, COMSIG_MOVABLE_IMPACT, hit_atom, throwingdatum)
 		if(get_temperature() && isliving(hit_atom))
 			var/mob/living/L = hit_atom
-			L.IgniteMob()
+			L.ignite_mob()
 		var/itempush = 1
 		if(w_class < 4)
 			itempush = 0 //too light to push anything
@@ -820,7 +832,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	if(damtype == BURN)
 		. = 'sound/weapons/sear.ogg'
 	else
-		. = "desecration"
+		. = SFX_DESECRATION
 
 /obj/item/proc/open_flame(flame_heat=700)
 	var/turf/location = loc
@@ -984,6 +996,10 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 
 	delay *= toolspeed * skill_modifier
 
+	// SKYRAT EDIT ADDITION
+	if(welding_sparks) // If we have sparks, assume we are a welding tool.
+		target.add_overlay(welding_sparks)
+	// SKYRAT EDIT END
 
 	// Play tool sound at the beginning of tool usage.
 	play_tool_sound(target, volume)
@@ -994,24 +1010,45 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 
 		if(ismob(target))
 			if(!do_mob(user, target, delay, extra_checks=tool_check))
+				// SKYRAT EDIT ADDITION
+				if(welding_sparks)
+					target.cut_overlay(welding_sparks)
+				// SKYRAT EDIT END
 				return
 
 		else
 			if(!do_after(user, delay, target=target, extra_checks=tool_check))
+				// SKYRAT EDIT ADDITION
+				if(welding_sparks)
+					target.cut_overlay(welding_sparks)
+				// SKYRAT EDIT END
 				return
 	else
 		// Invoke the extra checks once, just in case.
 		if(extra_checks && !extra_checks.Invoke())
+			// SKYRAT EDIT ADDITION
+			if(welding_sparks)
+				target.cut_overlay(welding_sparks)
+			// SKYRAT EDIT END
 			return
 
 	// Use tool's fuel, stack sheets or charges if amount is set.
 	if(amount && !use(amount))
+		// SKYRAT EDIT ADDITION
+		if(welding_sparks)
+			target.cut_overlay(welding_sparks)
+		// SKYRAT EDIT END
 		return
 
 	// Play tool sound at the end of tool usage,
 	// but only if the delay between the beginning and the end is not too small
 	if(delay >= MIN_TOOL_SOUND_DELAY)
 		play_tool_sound(target, volume)
+
+	// SKYRAT EDIT ADDITION
+	if(welding_sparks)
+		target.cut_overlay(welding_sparks)
+	// SKYRAT EDIT END
 
 	return TRUE
 
@@ -1136,6 +1173,9 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 
 ///For when you want to add/update the embedding on an item. Uses the vars in [/obj/item/var/embedding], and defaults to config values for values that aren't set. Will automatically detach previous embed elements on this item.
 /obj/item/proc/updateEmbedding()
+	SHOULD_CALL_PARENT(TRUE)
+
+	SEND_SIGNAL(src, COMSIG_ITEM_EMBEDDING_UPDATE)
 	if(!LAZYLEN(embedding))
 		disableEmbedding()
 		return
@@ -1212,12 +1252,12 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 				var/obj/item/shard/broken_glass = new /obj/item/shard(loc)
 				broken_glass.name = "broken [name]"
 				broken_glass.desc = "This used to be \a [name], but it sure isn't anymore."
-				playsound(victim, "shatter", 25, TRUE)
+				playsound(victim, SFX_SHATTER, 25, TRUE)
 				qdel(src)
 				if(QDELETED(source_item))
 					broken_glass.on_accidental_consumption(victim, user)
 			else //33% chance to just "crack" it (play a sound) and leave it in the bread
-				playsound(victim, "shatter", 15, TRUE)
+				playsound(victim, SFX_SHATTER, 15, TRUE)
 			discover_after = FALSE
 
 		victim.adjust_disgust(33)
@@ -1254,7 +1294,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
  */
 /obj/item/proc/update_action_buttons(status_only = FALSE, force = FALSE)
 	for(var/datum/action/current_action as anything in actions)
-		current_action.UpdateButtonIcon(status_only, force)
+		current_action.UpdateButtons(status_only, force)
 
 // Update icons if this is being carried by a mob
 /obj/item/wash(clean_types)
@@ -1300,9 +1340,21 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	if(!LAZYLEN(unique_reskin))
 		return
 
+	/// Is the obj a glasses icon with swappable item states?
+	var/is_swappable = FALSE
+	/// if the item are glasses, this variable stores the item.
+	var/obj/item/clothing/glasses/reskinned_glasses
+
+	if(istype(src, /obj/item/clothing/glasses))
+		reskinned_glasses = src
+		if(reskinned_glasses.can_switch_eye)
+			is_swappable = TRUE
+
 	var/list/items = list()
+
+
 	for(var/reskin_option in unique_reskin)
-		var/image/item_image = image(icon = unique_reskin[reskin_option][RESKIN_ICON] ? unique_reskin[reskin_option][RESKIN_ICON] : icon, icon_state = unique_reskin[reskin_option][RESKIN_ICON_STATE])
+		var/image/item_image = image(icon = unique_reskin[reskin_option][RESKIN_ICON] ? unique_reskin[reskin_option][RESKIN_ICON] : icon, icon_state = "[unique_reskin[reskin_option][RESKIN_ICON_STATE]][is_swappable ? "_R" : ""]")
 		items += list("[reskin_option]" = item_image)
 	sort_list(items)
 
@@ -1312,16 +1364,35 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	if(!unique_reskin[pick])
 		return
 	current_skin = pick
+
 	if(unique_reskin[pick][RESKIN_ICON])
 		icon = unique_reskin[pick][RESKIN_ICON]
+
 	if(unique_reskin[pick][RESKIN_ICON_STATE])
-		icon_state = unique_reskin[pick][RESKIN_ICON_STATE]
+		if(is_swappable)
+			reskinned_glasses.current_sprite_state = unique_reskin[pick][RESKIN_ICON_STATE]
+			icon_state = reskinned_glasses.current_sprite_state + "_R"
+		else
+			icon_state = unique_reskin[pick][RESKIN_ICON_STATE]
+
 	if(unique_reskin[pick][RESKIN_WORN_ICON])
 		worn_icon = unique_reskin[pick][RESKIN_WORN_ICON]
+
 	if(unique_reskin[pick][RESKIN_WORN_ICON_STATE])
-		worn_icon_state = unique_reskin[pick][RESKIN_WORN_ICON_STATE]
-	if(unique_reskin[pick][RESKIN_MUTANT_VARIANTS])
-		mutant_variants = unique_reskin[pick][RESKIN_MUTANT_VARIANTS]
+		if(is_swappable)
+			reskinned_glasses.current_worn_state = unique_reskin[pick][RESKIN_WORN_ICON_STATE]
+			worn_icon_state = reskinned_glasses.current_worn_state + "_R"
+		else
+			worn_icon_state = unique_reskin[pick][RESKIN_WORN_ICON_STATE]
+
+	if(unique_reskin[pick][RESKIN_INHAND_L])
+		lefthand_file = unique_reskin[pick][RESKIN_INHAND_L]
+	if(unique_reskin[pick][RESKIN_INHAND_R])
+		righthand_file = unique_reskin[pick][RESKIN_INHAND_R]
+	if(unique_reskin[pick][RESKIN_INHAND_STATE])
+		inhand_icon_state = unique_reskin[pick][RESKIN_INHAND_STATE]
+	if(unique_reskin[pick][RESKIN_SUPPORTS_VARIATIONS_FLAGS])
+		supports_variations_flags = unique_reskin[pick][RESKIN_SUPPORTS_VARIATIONS_FLAGS]
 	if(ishuman(M))
 		var/mob/living/carbon/human/wearer = M
 		wearer.regenerate_icons() // update that mf
@@ -1404,6 +1475,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	alpha = 0
 	transform = animation_matrix
 
+	SEND_SIGNAL(src, COMSIG_ATOM_TEMPORARY_ANIMATION_START, 3)
 	// This is instant on byond's end, but to our clients this looks like a quick drop
 	animate(src, alpha = old_alpha, pixel_x = old_x, pixel_y = old_y, transform = old_transform, time = 3, easing = CUBIC_EASING)
 
@@ -1445,3 +1517,13 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/e
 	animate(attack_image, alpha = 175, transform = copy_transform.Scale(0.75), pixel_x = 0, pixel_y = 0, pixel_z = 0, time = 3)
 	animate(time = 1)
 	animate(alpha = 0, time = 3, easing = CIRCULAR_EASING|EASE_OUT)
+
+/// Common proc used by painting tools like spraycans and palettes that can access the entire 24 bits color space.
+/obj/item/proc/pick_painting_tool_color(mob/user, default_color)
+	var/chosen_color = input(user,"Pick new color", "[src]", default_color) as color|null
+	if(!chosen_color || QDELETED(src) || IS_DEAD_OR_INCAP(user) || !user.is_holding(src))
+		return
+	set_painting_tool_color(chosen_color)
+
+/obj/item/proc/set_painting_tool_color(chosen_color)
+	SEND_SIGNAL(src, COMSIG_PAINTING_TOOL_SET_COLOR, chosen_color)

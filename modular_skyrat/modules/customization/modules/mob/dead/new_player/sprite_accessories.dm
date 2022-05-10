@@ -1,5 +1,8 @@
 GLOBAL_LIST_EMPTY(cached_mutant_icon_files)
 
+/// The flag to show that snouts should use the muzzled sprite.
+#define SPRITE_ACCESSORY_USE_MUZZLED_SPRITE (1<<0)
+
 /datum/sprite_accessory
 	///Unique key of an accessroy. All tails should have "tail", ears "ears" etc.
 	var/key = null
@@ -13,10 +16,14 @@ GLOBAL_LIST_EMPTY(cached_mutant_icon_files)
 	///Notable things that have it set to FALSE are things that need special setup, such as genitals
 	var/generic
 
+	/// For all the flags that you need to pass from a sprite_accessory to an organ, when it's linked to one.
+	/// (i.e. passing through the fact that a snout should or shouldn't use a muzzled sprite for head worn items)
+	var/flags_for_organ = NONE
+
 	color_src = USE_ONE_COLOR
 
-	///Which layers does this accessory affect (BODY_BEHIND_LAYER, BODY_ADJ_LAYER, BODY_FRONT_LAYER)
-	var/relevent_layers = list(BODY_BEHIND_LAYER, BODY_ADJ_LAYER, BODY_FRONT_LAYER)
+	///Which layers does this accessory affect (BODY_BEHIND_LAYER, BODY_ADJ_LAYER, BODY_FRONT_LAYER, BODY_FRONT_UNDER_CLOTHES)
+	var/relevent_layers = list(BODY_BEHIND_LAYER, BODY_ADJ_LAYER, BODY_FRONT_LAYER, BODY_FRONT_UNDER_CLOTHES)
 
 	///This is used to determine whether an accessory gets added to someone. This is important for accessories that are "None", which should have this set to false
 	var/factual = TRUE
@@ -187,6 +194,11 @@ GLOBAL_LIST_EMPTY(cached_mutant_icon_files)
 	icon_state = "socks_thigh"
 	use_static = null
 
+/datum/sprite_accessory/socks/striped_thigh
+	name = "Thigh-high (Striped)"
+	icon_state = "striped_thigh"
+	use_static = null
+
 /datum/sprite_accessory/socks/bee_thigh
 	name = "Thigh-high - Bee (Old)"
 	icon_state = "bee_thigh_old"
@@ -247,6 +259,10 @@ GLOBAL_LIST_EMPTY(cached_mutant_icon_files)
 	name = "Pantyhose - Ripped"
 	icon_state = "pantyhose_ripped"
 	use_static = null
+
+/datum/sprite_accessory/socks/stockings_ripped
+	name = "Stockings - Ripped"
+	icon_state = "stockings_ripped"
 
 /datum/sprite_accessory/underwear
 	icon = 'modular_skyrat/master_files/icons/mob/clothing/underwear.dmi'
@@ -385,7 +401,7 @@ GLOBAL_LIST_EMPTY(cached_mutant_icon_files)
 	name = "LIZARED Underwear"
 	icon_state = "lizared"
 	use_static = TRUE
-	
+
 /datum/sprite_accessory/underwear/digibriefs
 	name = "Digi Briefs"
 	icon_state = "briefs_d"

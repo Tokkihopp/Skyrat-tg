@@ -33,13 +33,13 @@
 	name = "plague doctor's hat"
 	desc = "These were once used by plague doctors. They're pretty much useless."
 	icon_state = "plaguedoctor"
-	permeability_coefficient = 0.01
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 100, FIRE = 0, ACID = 0)
 
 /obj/item/clothing/head/nursehat
 	name = "nurse's hat"
 	desc = "It allows quick identification of trained medical personnel."
 	icon_state = "nursehat"
-	dynamic_hair_suffix = ""
+
 
 	dog_fashion = /datum/dog_fashion/head/nurse
 
@@ -48,7 +48,7 @@
 	desc = "Gentleman, elite aboard!"
 	icon_state = "bowler"
 	inhand_icon_state = "bowler"
-	dynamic_hair_suffix = ""
+
 
 /obj/item/clothing/head/bearpelt
 	name = "bear pelt hat"
@@ -117,7 +117,7 @@
 	name = "jester hat"
 	desc = "A hat with bells, to add some merriness to the suit."
 	icon_state = "jester_hat"
-	dynamic_hair_suffix = ""
+
 
 /obj/item/clothing/head/jester/alt
 	icon_state = "jester2"
@@ -186,6 +186,7 @@
 	flags_inv = 0
 	armor = list(MELEE = 30, BULLET = 15, LASER = 30, ENERGY = 40, BOMB = 25, BIO = 0, FIRE = 50, ACID = 50)
 	strip_delay = (8 SECONDS)
+	supports_variations_flags = CLOTHING_SNOUTED_VARIATION_NO_NEW_ICON //SKYRAT EDIT lets anthros wear the hat
 
 /obj/item/clothing/head/human_leather
 	name = "human skin hat"

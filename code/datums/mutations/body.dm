@@ -95,6 +95,12 @@
 /datum/mutation/human/dwarfism/on_acquiring(mob/living/carbon/human/owner)
 	if(..())
 		return
+	// SKYRAT EDIT BEGIN
+	if(owner.dna.features["body_size"] < 1)
+		to_chat(owner, "You feel your body shrinking even further, but your organs aren't! Uh oh!")
+		owner.adjustBruteLoss(25)
+		return
+	// SKYRAT EDIT END
 	ADD_TRAIT(owner, TRAIT_DWARF, GENETIC_MUTATION)
 	var/matrix/new_transform = matrix()
 	new_transform.Scale(1, 0.8)
@@ -178,7 +184,6 @@
 	text_gain_indication = "You feel unusually monkey-like."
 	text_lose_indication = "You feel like your old self."
 	quality = NEGATIVE
-	time_coeff = 2
 	locked = TRUE //Species specific, keep out of actual gene pool
 	var/datum/species/original_species = /datum/species/human
 	var/original_name
@@ -293,7 +298,7 @@
 /datum/mutation/human/fire/on_life(delta_time, times_fired)
 	if(DT_PROB((0.05+(100-dna.stability)/19.5) * GET_MUTATION_SYNCHRONIZER(src), delta_time))
 		owner.adjust_fire_stacks(2 * GET_MUTATION_POWER(src))
-		owner.IgniteMob()
+		owner.ignite_mob()
 
 /datum/mutation/human/fire/on_acquiring(mob/living/carbon/human/owner)
 	if(..())
@@ -365,6 +370,12 @@
 /datum/mutation/human/gigantism/on_acquiring(mob/living/carbon/human/owner)
 	if(..())
 		return
+	// SKYRAT EDIT BEGIN
+	if(owner.dna.features["body_size"] > 1)
+		to_chat(owner, "You feel your body expanding even further, but it feels like your bones are expanding too much!")
+		owner.adjustBruteLoss(25) // take some DAMAGE
+		return
+	// SKYRAT EDIT END
 	ADD_TRAIT(owner, TRAIT_GIANT, GENETIC_MUTATION)
 	owner.resize = 1.25
 	owner.update_transform()
@@ -506,7 +517,7 @@
 	if(brain) //so this doesn't instantly kill you. we could delete the brain, but it lets people cure brain issues they /really/ shouldn't be
 		brain.zone = BODY_ZONE_HEAD
 	UnregisterSignal(owner, COMSIG_CARBON_ATTACH_LIMB)
-	var/successful = owner.regenerate_limb(BODY_ZONE_HEAD, noheal = TRUE) //noheal needs to be TRUE to prevent weird adding and removing mutation healing
+	var/successful = owner.regenerate_limb(BODY_ZONE_HEAD)
 	if(!successful)
 		stack_trace("HARS mutation head regeneration failed! (usually caused by headless syndrome having a head)")
 		return TRUE

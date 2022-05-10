@@ -265,6 +265,15 @@
 	category = list("initial","Tools","Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SERVICE
 
+/datum/design/airlock_painter/decal/tile
+	name = "Tile Sprayer"
+	id = "tile_sprayer"
+	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
+	materials = list(/datum/material/iron = 50, /datum/material/glass = 50)
+	build_path = /obj/item/airlock_painter/decal/tile
+	category = list("initial","Tools","Tool Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SERVICE
+
 /datum/design/emergency_oxygen
 	name = "Emergency Oxygen Tank"
 	id = "emergency_oxygen"
@@ -531,7 +540,7 @@
 	name = "Scalpel"
 	id = "scalpel"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 4000, /datum/material/glass = 1000)
+	materials = list(/datum/material/iron = 4000, /datum/material/glass = 1000, /datum/material/silver = 2000)
 	build_path = /obj/item/scalpel
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -540,7 +549,7 @@
 	name = "Circular Saw"
 	id = "circular_saw"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 10000, /datum/material/glass = 6000)
+	materials = list(/datum/material/iron = 10000, /datum/material/glass = 6000, /datum/material/silver = 5000)
 	build_path = /obj/item/circular_saw
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -549,7 +558,7 @@
 	name = "Bonesetter"
 	id = "bonesetter"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 5000,  /datum/material/glass = 2500)
+	materials = list(/datum/material/iron = 5000,  /datum/material/glass = 2500, /datum/material/silver = 2500)
 	build_path = /obj/item/bonesetter
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -558,7 +567,7 @@
 	name = "Surgical Drill"
 	id = "surgicaldrill"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 10000, /datum/material/glass = 6000)
+	materials = list(/datum/material/iron = 10000, /datum/material/glass = 6000, /datum/material/silver = 5000)
 	build_path = /obj/item/surgicaldrill
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -567,7 +576,7 @@
 	name = "Retractor"
 	id = "retractor"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 6000, /datum/material/glass = 3000)
+	materials = list(/datum/material/iron = 6000, /datum/material/glass = 3000, /datum/material/silver = 3000)
 	build_path = /obj/item/retractor
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -576,7 +585,7 @@
 	name = "Cautery"
 	id = "cautery"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 2500, /datum/material/glass = 750)
+	materials = list(/datum/material/iron = 2500, /datum/material/glass = 750, /datum/material/silver = 1250)
 	build_path = /obj/item/cautery
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -585,7 +594,7 @@
 	name = "Hemostat"
 	id = "hemostat"
 	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
-	materials = list(/datum/material/iron = 5000, /datum/material/glass = 2500)
+	materials = list(/datum/material/iron = 5000, /datum/material/glass = 2500, /datum/material/silver = 2500)
 	build_path = /obj/item/hemostat
 	category = list("initial", "Medical", "Tool Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
@@ -620,7 +629,7 @@
 /datum/design/pillbottle
 	name = "Pill Bottle"
 	id = "pillbottle"
-	build_type = AUTOLATHE
+	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
 	materials = list(/datum/material/plastic = 20, /datum/material/glass = 100)
 	build_path = /obj/item/storage/pill_bottle
 	category = list("initial", "Medical", "Medical Designs")
@@ -738,9 +747,9 @@
 	build_path = /obj/item/assembly/timer
 	category = list("initial", "Misc")
 
-/datum/design/voice_analyser
-	name = "Voice Analyser"
-	id = "voice_analyser"
+/datum/design/voice_analyzer
+	name = "Voice Analyzer"
+	id = "voice_analyzer"
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 500, /datum/material/glass = 50)
 	build_path = /obj/item/assembly/voice
@@ -784,14 +793,6 @@
 	build_type = AUTOLATHE
 	materials = list(/datum/material/iron = 14000, /datum/material/glass = 8000)
 	build_path = /obj/item/wallframe/status_display
-	category = list("initial", "Construction")
-
-/datum/design/bounty_board_frame
-	name = "Bounty Board Frame"
-	id = "bountyboard_frame"
-	build_type = AUTOLATHE
-	materials = list(/datum/material/iron = 14000, /datum/material/glass = 8000)
-	build_path = /obj/item/wallframe/bounty_board
 	category = list("initial", "Construction")
 
 /datum/design/syringe
@@ -1245,3 +1246,29 @@
 	build_path = /obj/item/razor
 	category = list("initial","Medical")
 	departmental_flags = DEPARTMENTAL_FLAG_SERVICE
+
+/datum/design/paperroll
+	name = "Hand Labeler Paper Roll"
+	id = "roll"
+	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
+	materials = list(/datum/material/iron = 50, /datum/material/glass = 25)
+	build_path = /obj/item/hand_labeler_refill
+	category = list("initial", "Misc", "Equipment")
+
+/datum/design/toner
+	name = "Toner Cartridge"
+	id = "toner"
+	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
+	materials = list(/datum/material/iron = 10, /datum/material/glass = 10)
+	build_path = /obj/item/toner
+	category = list("initial", "Misc", "Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SERVICE
+
+/datum/design/toner/large
+	name = "Large Toner Cartridge"
+	id = "toner_large"
+	build_type = AUTOLATHE | PROTOLATHE | AWAY_LATHE
+	materials = list(/datum/material/iron = 35, /datum/material/glass = 35)
+	build_path = /obj/item/toner/large
+	category = list("initial", "Misc", "Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SERVICE
